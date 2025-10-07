@@ -1,0 +1,21 @@
+services:
+
+db:
+  image: postgres:15
+  container_name: postgres-db
+  restart: always
+  env_file:
+    - ./.env
+  environment:
+    POSGRES_DB: ${POSGRES_DB}
+  ports:
+    - "27017:27017"
+
+backend_api:
+  build: .
+  depends_on:
+    - db
+  environment:
+    POSTGRES_URL: POSTGRES_URL
+  ports:
+    - "5000": "5000"
