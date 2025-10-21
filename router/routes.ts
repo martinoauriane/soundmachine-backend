@@ -4,12 +4,18 @@ import cors from "cors";
 import mysql from "mysql";
 import ENV from "../utils/env";
 
-import { create_user, delete_user, userTracks } from "../controllers/user";
-import { get_all_users, get_user_by_id } from "../controllers/users";
+import {
+  create_user,
+  delete_user,
+  get_user_tracks,
+} from "../controllers/user_controller";
+import {
+  get_all_users,
+  get_user_by_id,
+} from "../controllers/users_controllers";
 import { get_all_tracks, update_track } from "../controllers/track_controller";
 import { authenticationMiddleware } from "../middlewares/autenticationMiddleware";
 import { loginMiddleWare } from "../middlewares/loginMiddleware";
-import db from "../db";
 
 const app = express();
 const router = express.Router();
@@ -24,14 +30,6 @@ const startServer = () => {
     console.log(`Server is running at http://${ENV.hostname}:${ENV.port}/`);
   });
 };
-
-db.connect((err: Error) => {
-  if (err) {
-    console.error("Database connection failed:", err.stack);
-    return;
-  }
-  console.log("Connected to MySQL database.");
-});
 
 // USER
 // CREATE user account
@@ -48,7 +46,7 @@ router.get(
   "/:userid/sounds",
   loginMiddleWare,
   authenticationMiddleware,
-  userTracks
+  get_user_tracks
 );
 
 // USERS

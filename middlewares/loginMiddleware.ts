@@ -1,15 +1,6 @@
 import { Request, Response, NextFunction } from "express";
 import ENV from "../utils/env";
 const bcrypt = require("bcrypt");
-import { db } from "../router/server";
-
-db.connect((err: Error) => {
-  if (err) {
-    console.error("Database connection failed:", err.stack);
-    return;
-  }
-  console.log("Connected to MySQL database.");
-});
 
 export async function loginMiddleWare(
   req: Request,

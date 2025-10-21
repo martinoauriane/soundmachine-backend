@@ -1,5 +1,5 @@
 import { Request, Response } from "express";
-import { TrackService } from "../services/track";
+import { TrackService } from "../services/tracks_service";
 export interface Track {
   id: number;
   name: string;
@@ -18,16 +18,18 @@ export async function get_all_tracks(req: Request, res: Response) {
 
 // update track // DONE
 export async function update_track(req: Request, res: Response) {
-  const trackId = req.params.id;
+  const trackId = parseInt(req.params.id);
   const { tracktitle } = req.body.trackname; // Assuming the new name is sent in the request body
   const { user_id } = req.body;
+
   if (!trackId) {
     console.error("Error getting track id");
   }
   if (!user_id) {
     console.error("Error getting track id");
   }
+
   try {
-    const updateResult = TrackService.UpdateTrack(trackId, tracktitle);
+    const updateResult = TrackService.updateTrack(trackId, tracktitle);
   } catch (error) {}
 }
