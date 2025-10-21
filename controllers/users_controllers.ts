@@ -5,15 +5,6 @@ import { UsersService } from "../services/users_service";
 
 const prisma = new PrismaClient();
 
-interface User {
-  id: number;
-  name: string;
-  pseudo: string;
-  tracks?: Track[];
-  downloadedTracks?: Track[];
-  uploadedTracks?: Track[];
-}
-
 // retrieve all users
 export async function get_all_users(req: Request, res: Response) {
   const result = await prisma.users.findMany({});

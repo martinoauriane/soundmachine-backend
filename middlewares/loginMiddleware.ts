@@ -1,6 +1,9 @@
 import { Request, Response, NextFunction } from "express";
 import ENV from "../utils/env";
 const bcrypt = require("bcrypt");
+import { PrismaClient } from "@prisma/client";
+
+const prisma = new PrismaClient();
 
 export async function loginMiddleWare(
   req: Request,
@@ -9,14 +12,14 @@ export async function loginMiddleWare(
 ) {
   const password = req.body.password;
   const userId = req.body.password;
-
-  const query = `SELECT password FROM ${ENV} WHERE user.id = ?)`;
-
-  const db_hash = db.query(query, [userId], (err, result) => {
-    if (err)
-      res.status(500).json({ error: "error fetching password for user" });
-  });
-
-  const result = await bcrypt.compare(password, db_hash);
+  const user = await prisma.user.findUnique({ where: { id: userId } });
+  if (!user) {
+    throw new Error(`No user found for id: ${userId}`);
+  }
+  const hash = user.password;
+  if (!hash) {
+    console.error("error retrieving user password");
+  }
+  const result = await bcrypt.compare(password, hash);
   return result;
 }
