@@ -1,20 +1,21 @@
 services:
 
-db:
+databaseSoundMachine:
   image: postgres:15
-  container_name: postgres-db
+  container_name: soundmachine-db
   restart: always
   env_file:
     - ./.env
   environment:
-    POSGRES_DB: ${POSGRES_DB}
+    - POSTGRES_PASSWORD: ${DB_PASSWORD},
+    - POSGRES_DB: ${DB_NAME}
   ports:
     - "27017:27017"
 
-backend_api:
+server:
   build: .
   depends_on:
-    - db
+    - databaseSoundMachine
   environment:
     POSTGRES_URL: POSTGRES_URL
   ports:
