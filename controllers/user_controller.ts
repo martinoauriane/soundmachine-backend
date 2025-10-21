@@ -1,6 +1,6 @@
 import { Request, Response } from "express";
 import { User } from "../user";
-import { UserService } from "../services/users_service";
+import { UserService } from "../services/user_service";
 
 // create user // DONE
 export async function create_user(req: Request, res: Response) {
@@ -20,7 +20,7 @@ export async function create_user(req: Request, res: Response) {
 
 // get user tracks // DONE
 export async function get_user_tracks(req: Request, res: Response) {
-  const userid = req.params.id;
+  const userid = parseInt(req.params.id);
   //todo: add token authentication
   if (!userid) {
     console.error("User not found in database");
@@ -35,7 +35,7 @@ export async function get_user_tracks(req: Request, res: Response) {
 
 // update user // DONE
 export async function get_user_by_id(req: Request, res: Response) {
-  const userid = req.params.id;
+  const userid = parseInt(req.params.id);
   //todo: add token authentication
   if (!userid) {
     console.error("User not found in database");
@@ -52,14 +52,14 @@ export async function get_user_by_id(req: Request, res: Response) {
 
 // delete user // DONE
 export function delete_user(req: Request, res: Response) {
-  const userid = req.params.id;
+  const userid = parseInt(req.params.id);
   if (!userid) {
     console.error("User not found");
   }
   //todo: add token authentication
 
-  const deletedUser = UserService.deleteUser;
-  if (deletedUser) {
+  const deletedUser = UserService.deleteUser(userid);
+  if (!deletedUser) {
     res.status(200).json("User successfully deleted");
   } else {
     res.status(500).json({ error: "Error deleting user in database" });

@@ -1,7 +1,6 @@
 // server.ts
 import express, { Request, Response } from "express";
 import cors from "cors";
-import mysql from "mysql";
 import ENV from "../utils/env";
 
 import {
