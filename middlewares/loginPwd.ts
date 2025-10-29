@@ -1,11 +1,10 @@
 import { Request, Response, NextFunction } from "express";
-import ENV from "../utils/env";
 const bcrypt = require("bcrypt");
 import { PrismaClient } from "@prisma/client";
 
 const prisma = new PrismaClient();
 
-export async function loginMiddleWare(
+export async function loginPwd(
   req: Request,
   res: Response,
   next: NextFunction
@@ -21,5 +20,5 @@ export async function loginMiddleWare(
     console.error("error retrieving user password");
   }
   const result = await bcrypt.compare(password, hash);
-  return result;
+  return { result };
 }

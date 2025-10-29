@@ -1,16 +1,8 @@
-const bcrypt = require("bcrypt");
+import bcrypt from "bcrypt";
 
-function hash_pwd(password: string) {
-  const saltRounds = 10; // You can adjust this value as needed
-  bcrypt.genSalt(saltRounds, function (err: Error, salt: string) {
-    bcrypt.hash(password, salt, function (err: Error, hash: string) {
-      if (err) {
-        throw err;
-      } else {
-        return hash;
-      }
-    });
-  });
+export async function hash_pwd(password: string): Promise<string> {
+  const saltRounds = 10;
+  const salt = await bcrypt.genSalt(saltRounds);
+  const hash = await bcrypt.hash(password, salt);
+  return hash;
 }
-
-export default hash_pwd;
