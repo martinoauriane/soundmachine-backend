@@ -1,20 +1,12 @@
-generator client {
-  provider = "prisma-client-js"
-  output   = "../generated/prisma"
-}
-
-datasource db {
-  provider = "postgresql"
-  url      = env("DATABASE_URL")
-}
-
 model Track {
-  id        Int      @id @default(autoincrement())
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-  title     String   @db.VarChar(255)
-  duration  DateTime
-  genre     String
+  id          Int      @id @default(autoincrement())
+  title       String   @db.VarChar(255)
+  created_at  DateTime @default(now())
+  updated_at  DateTime @updatedAt
+  duration    DateTime
+  music_genre String
+  filepath    String
+
   author    User     @relation(fields: [authorId], references: [id])
   authorId  Int
 }
@@ -23,7 +15,13 @@ model User {
   id      Int      @id @default(autoincrement())
   email   String   @unique
   name    String?
-  tracks  Track[]
-  downloadedTracks Track[]
-  uploadedTracks Track[]
+
+  // Relations avec Track
+  tracks           Track[] @relation("UserTracks")         
+  downloadedTracks Track[] @relation("UserDownloadedTracks")
+  uploadedTracks   Track[] @relation("UserUploadedTracks")
+
+  // Self-relation followers/following
+  followers  User[] @relation("UserFollows")
+  following  User[] @relation("UserFollows")
 }

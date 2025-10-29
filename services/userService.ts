@@ -6,7 +6,7 @@ const prisma = new PrismaClient();
 
 export class UserService {
   // create user
-  static async NewUser(user: User) {
+  static async newUser(user: User) {
     try {
       const hashedPassword = await hash_pwd(user.password);
       return prisma.user.create({
@@ -22,14 +22,30 @@ export class UserService {
     }
   }
 
-  // retrieve user by id
+  // get user by Id
+  static async getUserById(userId: number): Promise<User | null> {
+    try {
+      const user = await prisma.user.findUnique({
+        where: { id: userId }, // by default Prisma gets all user columns
+        include: {
+          tracks: true,
+        },
+      });
+      return user;
+    } catch (error) {
+      console.error("Failed to retrieve user:", error);
+      throw error;
+    }
+  }
+
+  // retrieve user tracks
   static async getUserTracks(userId: number) {
     try {
-      const uniqueUser = await prisma.user.findUnique({
+      const userTracks = await prisma.user.findUnique({
         where: { id: userId },
         select: { tracks: true },
       });
-      return uniqueUser;
+      return userTracks;
     } catch (error) {
       console.error("Failed to delete user:", error);
       throw error;
@@ -50,7 +66,7 @@ export class UserService {
     }
   }
 
-  //delete user
+  // delete user
   static async deleteUser(userId: number) {
     try {
       const deletedUser = await prisma.user.delete({
@@ -60,6 +76,16 @@ export class UserService {
     } catch (error) {
       console.error("Failed to delete user:", error);
       throw error;
+    }
+  }
+
+  // get all users
+  static async getAll() {
+    try {
+      const users = await prisma.user.findMany();
+      return users;
+    } catch (error) {
+      console.error("Failed to retrieve all users from db", error);
     }
   }
 }

@@ -1,25 +1,12 @@
 import { Request, Response } from "express";
 import { User } from "../user";
-import { UserService } from "../services/user_service";
+import { UserService } from "../services/userService";
 
-// create user // DONE
-export async function create_user(req: Request, res: Response) {
-  const user: User = {
-    name: String(req.query.name),
-    pseudo: String(req.query.pseudo),
-    email: req.body.email,
-    password: String(req.query.password),
-  };
-  try {
-    const newUser = UserService.NewUser(user);
-    res.status(200).json("user successfully created");
-  } catch (error) {
-    res.status(500).json({ error: "Error creating new user" });
-  }
-}
+// create user
+export async function login(req: Request, res: Response) {}
 
-// get user tracks // DONE
-export async function get_user_tracks(req: Request, res: Response) {
+// get user tracks
+export async function getUserTracksController(req: Request, res: Response) {
   const userid = parseInt(req.params.id);
   //todo: add token authentication
   if (!userid) {

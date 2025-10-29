@@ -22,4 +22,17 @@ export class TrackService {
     const tracks = await prisma.tracks.findMany();
     return tracks;
   }
+
+  // delete user
+  static async deleteTrack(trackId: number) {
+    try {
+      const deletedTrack = await prisma.user.delete({
+        where: { id: trackId },
+      });
+      return deletedTrack;
+    } catch (error) {
+      console.error("Failed to delete user:", error);
+      throw error;
+    }
+  }
 }

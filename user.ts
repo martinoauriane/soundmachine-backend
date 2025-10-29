@@ -1,9 +1,13 @@
+import type { Track } from "./track";
+
 export interface User {
   id?: number;
-  name?: string;
+  firstname?: string;
+  lastname?: string;
   pseudo?: string;
-  authenticationToken?: string | null;
   email: string;
   password: string;
-  tracks?: Track[];
+  authenticationToken?: string | null;
+  uploadTracks?: Track[];
+  downloadedTracks?: Track[];
 }

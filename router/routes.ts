@@ -1,26 +1,18 @@
-import { bodySanitize } from "./../middlewares/bodySanitize";
 // server.ts
-import express, { Request, Response } from "express";
+import express from "express";
 import cors from "cors";
 import ENV from "../utils/env";
+//middlewares
 import { loginPwd } from "../middlewares/loginPwd";
-import {
-  create_user,
-  delete_user,
-  get_user_tracks,
-} from "../controllers/user_controller";
-import {
-  get_all_users,
-  get_user_by_id,
-} from "../controllers/users_controllers";
-import { get_all_tracks, update_track } from "../controllers/track_controller";
+import { bodySanitize } from "./../middlewares/bodySanitize";
 import { authenticateJwt } from "../middlewares/authenticateJwt";
-import { login } from "../controllers/auth_controller";
+import { login } from "../controllers/authController";
+// controllers
+import { UserController } from "../controllers/userController";
+import { TrackController } from "../controllers/trackController";
 
 const app = express();
 const router = express.Router();
-
-// MIDDLEWARE
 app.use(cors());
 app.use(express.json()); //  Parses incoming JSON requests and puts the parsed data in req.body.
 app.use(router);
@@ -32,39 +24,59 @@ const startServer = () => {
   });
 };
 
-// user registration
-router.post("/user/new", create_user);
+// USER
+// create
+router.post("/user/new", UserController.createUser);
 
-// user login
-router.get("/user", loginPwd);
+// get by id
+router.get("/users/:id", UserController.getUserById);
 
-// user delete
-router.delete("/delete/:user_id", loginPwd, authenticateJwt, delete_user);
+// get all users
+router.get("/users/all", UserController.getAll);
 
-// ger all user tracks
-router.get("/:userid/sounds", loginPwd, authenticateJwt, get_user_tracks);
+// delete by id
+router.delete(
+  "/delete/:user_id",
+  loginPwd,
+  authenticateJwt,
+  UserController.deleteUser
+);
 
-// update a track
-router.put("/add-sound/:userid", loginPwd, authenticateJwt, update_track);
+// TRACKS
+// all user tracks
+router.get(
+  "/:userid/sounds",
+  loginPwd,
+  authenticateJwt,
+  UserController.getUserTracks
+);
 
-// add a track
-router.post("/tracks/add", login, authenticateJwt);
+// put track
+router.put(
+  "/add-sound/:userid",
+  loginPwd,
+  authenticateJwt,
+  TrackController.updateTrack
+);
 
-// delete a track
-router.post(
+// add track
+router.post("/tracks/add", login, authenticateJwt, TrackController.addTrack);
+
+// delete track
+router.delete(
   "/tracks/delete/?track=trackid&?user=userid",
   login,
   authenticateJwt,
-  bodySanitize
+  bodySanitize,
+  TrackController.deleteTrack
 );
 
 // get all tracks
-router.get("/browse-by-categories", login, authenticateJwt, get_all_tracks);
-
-// get all users
-router.get("/users/all", get_all_users);
-
-// get 1 user by id
-router.get("/users/:id", get_user_by_id);
+router.get(
+  "/browse-by-categories",
+  login,
+  authenticateJwt,
+  TrackController.getAllTracks
+);
 
 startServer();
