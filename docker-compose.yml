@@ -1,23 +1,24 @@
 services:
-db:
-  container_name: soundmachine-db
-  image: mongo:latest
-  restart: always
-  env_file:
-    - ./.env
-  environment:
-    - MONGO_PASSWORD: ${MONGO_PASSWORD}
-    - MONGO_DB: ${MONGO_DB}
-    - MONGO_USER: ${MONGO_USER}
-  ports:
-    - "27017:27017"
-
-api:
-  container_name: soundmachine-api
-  build: .
-  depends_on:
-    - db
-  environment:
-    MONGO_URL: ${MONGO_URL}
-  ports:
-    - "5000:5000"
+  db:
+    container_name: soundmachine-db
+    image: mongo:latest
+    restart: always
+    env_file:
+      - ./.env
+    environment:
+      MONGO_PASSWORD: ${MONGO_PASSWORD}
+      MONGO_DB: ${MONGO_DB}
+      MONGO_USER: ${MONGO_USER}
+    ports:
+      - "27017:27017"
+  api:
+    container_name: soundmachine-api
+    depends_on:
+      - db
+    build:
+      context: .
+      dockerfile: ./Dockerfile
+    environment:
+      MONGO_URL: ${MONGO_URL}
+    ports:
+      - "5000:5000"

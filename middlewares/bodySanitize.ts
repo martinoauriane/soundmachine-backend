@@ -4,7 +4,7 @@ import xss from "xss-clean";
 // Helps prevent XSS (Cross-Site Scripting) attacks.
 // Ensures user inputs are cleaned before processing.
 
-export const bodySanitize = (
+export const bodySanitizeMiddleware = (
   req: Request,
   res: Response,
   next: NextFunction

@@ -6,7 +6,7 @@ const jwt = require("jsonwebtoken");
 // Jwt authenticate middleware protects routes without repetitive token checks in controllers.
 // It ensures users are authenticated before accessing restricted resources.
 
-export function authenticateJwt(
+export function authenticateMiddleware(
   req: Request,
   res: Response,
   next: NextFunction

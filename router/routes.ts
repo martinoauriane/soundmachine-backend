@@ -4,8 +4,9 @@ import cors from "cors";
 import ENV from "../utils/env";
 //middlewares
 import { loginPwd } from "../middlewares/loginPwd";
-import { bodySanitize } from "./../middlewares/bodySanitize";
-import { authenticateJwt } from "../middlewares/authenticateJwt";
+import { bodySanitizeMiddleware } from "./../middlewares/bodySanitize";
+import { authenticateMiddleware } from "../middlewares/authenticateJwt";
+import { pageNotFound } from "../middlewares/notFoundMiddleware";
 import { login } from "../controllers/authController";
 // controllers
 import { UserController } from "../controllers/userController";
@@ -16,7 +17,10 @@ const router = express.Router();
 app.use(cors());
 app.use(express.json()); //  Parses incoming JSON requests and puts the parsed data in req.body.
 app.use(router);
-app.use(bodySanitize);
+
+// middlewares
+app.use(bodySanitizeMiddleware);
+app.use(pageNotFound);
 
 const startServer = () => {
   app.listen(ENV.port, () => {
@@ -38,7 +42,7 @@ router.get("/users/all", UserController.getAll);
 router.delete(
   "/delete/:user_id",
   loginPwd,
-  authenticateJwt,
+  authenticateMiddleware,
   UserController.deleteUser
 );
 
@@ -47,7 +51,7 @@ router.delete(
 router.get(
   "/:userid/sounds",
   loginPwd,
-  authenticateJwt,
+  authenticateMiddleware,
   UserController.getUserTracks
 );
 
@@ -55,19 +59,24 @@ router.get(
 router.put(
   "/add-sound/:userid",
   loginPwd,
-  authenticateJwt,
+  authenticateMiddleware,
   TrackController.updateTrack
 );
 
 // add track
-router.post("/tracks/add", login, authenticateJwt, TrackController.addTrack);
+router.post(
+  "/tracks/add",
+  login,
+  authenticateMiddleware,
+  TrackController.addTrack
+);
 
 // delete track
 router.delete(
   "/tracks/delete/?track=trackid&?user=userid",
   login,
-  authenticateJwt,
-  bodySanitize,
+  authenticateMiddleware,
+  bodySanitizeMiddleware,
   TrackController.deleteTrack
 );
 
@@ -75,7 +84,7 @@ router.delete(
 router.get(
   "/browse-by-categories",
   login,
-  authenticateJwt,
+  authenticateMiddleware,
   TrackController.getAllTracks
 );
 
