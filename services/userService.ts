@@ -1,21 +1,25 @@
 import { PrismaClient } from "@prisma/client";
+import { Track } from "../track";
 import { User } from "../user";
 import { hash_pwd } from "../utils/password_hash";
 
 const prisma = new PrismaClient();
 
 export class UserService {
-  // create user
-  static async newUser(user: User) {
+  // new user
+  static async newUser(user: User): Promise<User | null> {
+    const hashedPassword = await hash_pwd(user.password);
     try {
-      const hashedPassword = await hash_pwd(user.password);
-      return prisma.user.create({
+      const newUser: User = await prisma.user.create({
         data: {
-          name: user.name,
+          firstname: user.firstname,
+          lastname: user.lastname,
+          pseudo: user.pseudo,
           email: user.email,
           password: hashedPassword,
         },
       });
+      return newUser;
     } catch (error) {
       console.error("Failed to create user", error);
       throw error;
@@ -28,7 +32,12 @@ export class UserService {
       const user = await prisma.user.findUnique({
         where: { id: userId }, // by default Prisma gets all user columns
         include: {
-          tracks: true,
+          // using include to include related tracks in the query response
+          tracks: {
+            uploadedTracks: true,
+            downloadedTracks: true,
+            favoriteTracks: true,
+          },
         },
       });
       return user;
@@ -39,9 +48,9 @@ export class UserService {
   }
 
   // retrieve user tracks
-  static async getUserTracks(userId: number) {
+  static async getUserTracks(userId: number): Promise<Track[] | null> {
     try {
-      const userTracks = await prisma.user.findUnique({
+      const userTracks: Track[] = await prisma.user.findUnique({
         where: { id: userId },
         select: { tracks: true },
       });
@@ -53,9 +62,12 @@ export class UserService {
   }
 
   // update user
-  static async updateUser(userId: number, userpseudo?: string) {
+  static async updateUser(
+    userId: number,
+    userpseudo?: string
+  ): Promise<User | null> {
     try {
-      const updatedUser = await prisma.user.update({
+      const updatedUser: User = await prisma.user.update({
         where: { id: userId },
         data: { pseudo: userpseudo },
       });
@@ -67,9 +79,9 @@ export class UserService {
   }
 
   // delete user
-  static async deleteUser(userId: number) {
+  static async deleteUser(userId: number): Promise<User | null> {
     try {
-      const deletedUser = await prisma.user.delete({
+      const deletedUser: User = await prisma.user.delete({
         where: { id: userId },
       });
       return deletedUser;
@@ -80,12 +92,13 @@ export class UserService {
   }
 
   // get all users
-  static async getAll() {
+  static async getAll(): Promise<User[] | undefined> {
     try {
-      const users = await prisma.user.findMany();
+      const users: User[] = await prisma.user.findMany();
       return users;
     } catch (error) {
       console.error("Failed to retrieve all users from db", error);
+      throw error;
     }
   }
 }

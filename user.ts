@@ -6,8 +6,11 @@ export interface User {
   lastname?: string;
   pseudo?: string;
   email: string;
-  password: string;
   authenticationToken?: string | null;
-  uploadTracks?: Track[];
+  password: string;
+  uploadedTracks?: Track[];
   downloadedTracks?: Track[];
+  favoriteTracks?: Track[];
+  followers?: User[];
+  following?: User[];
 }

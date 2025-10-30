@@ -5,9 +5,9 @@ export interface Track {
   title: string;
   created_at: Date;
   updated_at: Date;
-  duration: Date;
+  duration: number;
   music_genre: string;
+  filepath: string;
   author: User;
   authorId: number;
-  filepath: string;
 }

@@ -2,8 +2,8 @@ model Track {
   id          Int      @id @default(autoincrement())
   title       String   @db.VarChar(255)
   created_at  DateTime @default(now())
-  updated_at  DateTime @updatedAt
-  duration    DateTime
+  updated_at  DateTime? @updatedAt
+  duration    Int    // seconds
   music_genre String
   filepath    String
 
@@ -13,15 +13,17 @@ model Track {
 
 model User {
   id      Int      @id @default(autoincrement())
+  firstname String
+  lastname String 
+  pseudo String
   email   String   @unique
-  name    String?
+  password String
 
   // Relations avec Track
-  tracks           Track[] @relation("UserTracks")         
-  downloadedTracks Track[] @relation("UserDownloadedTracks")
-  uploadedTracks   Track[] @relation("UserUploadedTracks")
-
+  uploadedTracks   Track[]? @relation("UserUploadedTracks")
+  downloadedTracks Track[]? @relation("UserDownloadedTracks")
+  favoriteTracks Track[]? @relation("UserFavoriteTracks")
   // Self-relation followers/following
-  followers  User[] @relation("UserFollows")
-  following  User[] @relation("UserFollows")
+  followers  User[]? @relation("UserFollows")
+  following  User[]? @relation("UserFollows")
 }
