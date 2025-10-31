@@ -1,9 +1,9 @@
 // server.ts
 import express from "express";
 import cors from "cors";
-import router from "./router/routes";
-import { bodySanitizeMiddleware } from "./middlewares/bodySanitize";
-import { pageNotFound } from "./middlewares/notFoundMiddleware";
+import router from "./src/router/routes";
+import { bodySanitizeMiddleware } from "./src/middlewares/bodySanitize";
+import { pageNotFound } from "./src/middlewares/notFoundMiddleware";
 
 const app = express();
 

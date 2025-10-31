@@ -7,21 +7,6 @@ generator client {
   provider = "prisma-client-js"
 }
 
-model Track {
-  id          Int      @id @default(autoincrement())
-  title       String   @db.VarChar(255)
-  created_at  DateTime @default(now())
-  updated_at  DateTime? @updatedAt
-  duration    Int    // seconds
-  music_genre String
-  filepath    String
-
-  author    User       @relation("TrackAuthor", fields: [authorId], references: [id])
-  authorId  Int
-
-  downloadedByUsers User[] @relation("UserDownloadedTracks")
-  favoritedByUsers  User[] @relation("UserFavoriteTracks")
-}
 
 model User {
   id      Int      @id @default(autoincrement())
@@ -38,4 +23,20 @@ model User {
   // Self-relation followers/following
   followers  User[] @relation("UserFollows")
   following  User[] @relation("UserFollows")
+}
+
+model Track {
+  id          Int      @id @default(autoincrement())
+  title       String   @db.VarChar(255)
+  created_at  DateTime @default(now())
+  updated_at  DateTime? @updatedAt
+  duration    Int    // seconds
+  music_genre String
+  filepath    String
+
+  author    User       @relation("TrackAuthor", fields: [authorId], references: [id])
+  authorId  Int
+
+  downloadedByUsers User[] @relation("UserDownloadedTracks")
+  favoritedByUsers  User[] @relation("UserFavoriteTracks")
 }

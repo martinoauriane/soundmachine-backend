@@ -1,8 +1,8 @@
 import { PrismaClient, User as PrismaUser } from "@prisma/client";
 import { Track, TrackRead } from "../track";
-import { User, UserUpdate } from "../user";
-import { hash_pwd } from "../utils/password_hash";
-import { UserCreate, UserRead } from "../user";
+import { User, UserUpdate } from "../src/user";
+import { hash_pwd } from "../src/utils/password_hash";
+import { UserCreate, UserRead } from "../src/user";
 
 const prisma = new PrismaClient();
 
