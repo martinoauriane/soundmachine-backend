@@ -1,3 +1,12 @@
+datasource db {
+  provider = "postgresql"
+  url      = env("DB_URL")
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
 model Track {
   id          Int      @id @default(autoincrement())
   title       String   @db.VarChar(255)
@@ -7,8 +16,11 @@ model Track {
   music_genre String
   filepath    String
 
-  author    User     @relation(fields: [authorId], references: [id])
+  author    User       @relation("TrackAuthor", fields: [authorId], references: [id])
   authorId  Int
+
+  downloadedByUsers User[] @relation("UserDownloadedTracks")
+  favoritedByUsers  User[] @relation("UserFavoriteTracks")
 }
 
 model User {
@@ -20,10 +32,10 @@ model User {
   password String
 
   // Relations avec Track
-  uploadedTracks   Track[]? @relation("UserUploadedTracks")
-  downloadedTracks Track[]? @relation("UserDownloadedTracks")
-  favoriteTracks Track[]? @relation("UserFavoriteTracks")
+  uploadedTracks   Track[] @relation("TrackAuthor")
+  downloadedTracks Track[] @relation("UserDownloadedTracks")
+  favoriteTracks Track[] @relation("UserFavoriteTracks")
   // Self-relation followers/following
-  followers  User[]? @relation("UserFollows")
-  following  User[]? @relation("UserFollows")
+  followers  User[] @relation("UserFollows")
+  following  User[] @relation("UserFollows")
 }

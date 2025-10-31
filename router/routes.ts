@@ -1,44 +1,19 @@
-// server.ts
-import express from "express";
-import cors from "cors";
-import ENV from "../utils/env";
-//middlewares
+// router.ts
+import { Router } from "express";
 import { loginPwd } from "../middlewares/loginPwd";
-import { bodySanitizeMiddleware } from "./../middlewares/bodySanitize";
 import { authenticateMiddleware } from "../middlewares/authenticateJwt";
-import { pageNotFound } from "../middlewares/notFoundMiddleware";
+import { bodySanitizeMiddleware } from "../middlewares/bodySanitize";
 import { login } from "../controllers/authController";
-// controllers
 import { UserController } from "../controllers/userController";
 import { TrackController } from "../controllers/trackController";
 
-const app = express();
-const router = express.Router();
-app.use(cors());
-app.use(express.json()); //  Parses incoming JSON requests and puts the parsed data in req.body.
-app.use(router);
-
-// middlewares
-app.use(bodySanitizeMiddleware);
-app.use(pageNotFound);
-
-const startServer = () => {
-  app.listen(ENV.port, () => {
-    console.log(`Server is running at http://${ENV.hostname}:${ENV.port}/`);
-  });
-};
+const router = Router();
 
 // USER
-// create
 router.post("/user/new", UserController.createUser);
-
-// get by id
 router.get("/users/:id", UserController.getUserById);
-
-// get all users
 router.get("/users/all", UserController.getAll);
-
-// delete by id
+router.put("/user/:id", UserController.updateUser);
 router.delete(
   "/delete/:user_id",
   loginPwd,
@@ -47,7 +22,6 @@ router.delete(
 );
 
 // TRACKS
-// all user tracks
 router.get(
   "/:userid/sounds",
   loginPwd,
@@ -55,7 +29,6 @@ router.get(
   UserController.getUserTracks
 );
 
-// put track
 router.put(
   "/add-sound/:userid",
   loginPwd,
@@ -63,7 +36,6 @@ router.put(
   TrackController.updateTrack
 );
 
-// add track
 router.post(
   "/tracks/add",
   login,
@@ -71,7 +43,6 @@ router.post(
   TrackController.addTrack
 );
 
-// delete track
 router.delete(
   "/tracks/delete/?track=trackid&?user=userid",
   login,
@@ -80,7 +51,6 @@ router.delete(
   TrackController.deleteTrack
 );
 
-// get all tracks
 router.get(
   "/browse-by-categories",
   login,
@@ -88,4 +58,4 @@ router.get(
   TrackController.getAllTracks
 );
 
-startServer();
+export default router;

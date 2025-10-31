@@ -23,14 +23,14 @@ export class TrackService {
   }
   // retrieve all tracks
   static async getAllTracks() {
-    const tracks = await prisma.tracks.findMany();
+    const tracks = await prisma.track.findMany();
     return tracks;
   }
 
   // delete user
   static async deleteTrack(trackId: number): Promise<Track> {
     try {
-      const deletedTrack: Track = await prisma.user.delete({
+      const deletedTrack: Track = await prisma.track.delete({
         where: { id: trackId },
       });
       return deletedTrack;

@@ -1,19 +1,29 @@
 import { Request, Response } from "express";
 import { UserService } from "../services/userService";
-import { type User } from "../user";
+import { UserUpdate, type User } from "../user";
+import { UserCreate, UserRead } from "../user";
+import { PrismaClient, User as PrismaUser } from "@prisma/client";
 
 export class UserController {
   // create user
   static async createUser(req: Request, res: Response) {
-    const user: User = {
-      name: String(req.query.name),
-      pseudo: String(req.query.pseudo),
-      email: req.body.email,
-      password: String(req.query.password),
-    };
+    const { firstname, lastname, pseudo, email, password } = req.body;
+    if (!firstname || !lastname || !pseudo || !email || !password) {
+      return res.status(400).json({ error: "Missing required fields" });
+    }
 
-    const newUser = UserService.newUser(user);
-    return newUser;
+    try {
+      const newUser: PrismaUser = await UserService.newUser({
+        firstname,
+        lastname,
+        pseudo,
+        email,
+        password,
+      });
+      return res.status(200).json(newUser);
+    } catch (error) {
+      return res.status(500).json({ error: "Failed to create new user" });
+    }
   }
 
   // retrieve all users
@@ -37,13 +47,6 @@ export class UserController {
     }
   }
 
-  // delete user
-  static async deleteUser(req: Request, res: Response) {
-    const userId = parseInt(req.params.id);
-    const deletedUser = await UserService.deleteUser(userId);
-    return deletedUser;
-  }
-
   // get user tracks
   static async getUserTracks(req: Request, res: Response) {
     const userId = parseInt(req.params.id);
@@ -57,5 +60,35 @@ export class UserController {
     } catch (error) {
       res.status(500).json({ error: "Failed retrieving tracks in db" });
     }
+  }
+
+  // update user
+  static async updateUser(req: Request, res: Response) {
+    const userId = parseInt(req.params.id);
+    if (!userId) res.status(400).json("error: No user id");
+    const { firstname, lastname, pseudo, password } = req.body;
+    try {
+      const updatedUser: UserRead | null = await UserService.updateUser(
+        userId,
+        {
+          firstname,
+          lastname,
+          pseudo,
+          password,
+        }
+      );
+      return res.status(200).json(updatedUser);
+    } catch (error) {
+      res
+        .status(500)
+        .json({ error: "Failed to update user with given fields" });
+    }
+  }
+
+  // delete user
+  static async deleteUser(req: Request, res: Response) {
+    const userId = parseInt(req.params.id);
+    const deletedUser = await UserService.deleteUser(userId);
+    return deletedUser;
   }
 }
