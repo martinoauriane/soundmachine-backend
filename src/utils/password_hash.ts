@@ -6,7 +6,7 @@ export async function hash_pwd(password: string): Promise<string> {
   return hash;
 }
 
-async function verifyPassword(
+export async function verifyPassword(
   password: string,
   hash: string
 ): Promise<boolean> {

@@ -1,8 +1,8 @@
 import { PrismaClient, User as PrismaUser } from "@prisma/client";
-import { Track, TrackRead } from "../track";
-import { User, UserUpdate } from "../user";
-import { hash_pwd } from "../utils/password_hash";
-import { UserCreate, UserRead } from "../user";
+import { Track, TrackRead } from "../../types/track";
+import { User, UserUpdate } from "../../types/user";
+import { hash_pwd, verifyPassword } from "../utils/password_hash";
+import { UserCreate, UserRead } from "../../types/user";
 
 const prisma = new PrismaClient();
 
@@ -30,6 +30,25 @@ export class UserService {
     }
   }
 
+  static async loginService(email: string, password: string): Promise<boolean> {
+    try {
+      const user = await prisma.user.findUnique({
+        where: { email: email },
+        select: {
+          email: true,
+          password: true,
+          id: true,
+        },
+      });
+      if (!user) throw new Error(`User with email ${email} not found`);
+      const check = await verifyPassword(password, user.password);
+      if (!check) throw new Error("Invalid password");
+      return true;
+    } catch (error) {
+      return false;
+    }
+  }
+
   // get user by Id
   static async getUserById(userId: number): Promise<UserRead | null> {
     try {
@@ -49,6 +68,31 @@ export class UserService {
         },
       });
       if (!user) throw new Error(`User with ID ${userId} not found`);
+      return user;
+    } catch (error) {
+      console.error("Failed to retrieve user:", error);
+      throw error;
+    }
+  }
+
+  static async getUserByEmail(email: string): Promise<UserRead | null> {
+    try {
+      const user: UserRead | null = await prisma.user.findUnique({
+        where: { email: email },
+        select: {
+          id: true,
+          firstname: true,
+          lastname: true,
+          pseudo: true,
+          email: true,
+          uploadedTracks: true,
+          downloadedTracks: true,
+          favoriteTracks: true,
+          followers: true,
+          following: true,
+        },
+      });
+      if (!user) throw new Error(`User with email ${email} not found`);
       return user;
     } catch (error) {
       console.error("Failed to retrieve user:", error);

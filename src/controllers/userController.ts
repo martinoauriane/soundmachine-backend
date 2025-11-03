@@ -1,7 +1,8 @@
 import { Request, Response } from "express";
 import { UserService } from "../services/userService";
-import { UserRead } from "../user";
+import { UserRead } from "../../types/user";
 import { User as PrismaUser } from "@prisma/client";
+import jwt from "jsonwebtoken";
 
 export class UserController {
   // create user
@@ -24,6 +25,39 @@ export class UserController {
       return res.status(200).json(newUser);
     } catch (error) {
       return res.status(500).json({ error: "Failed to create new user" });
+    }
+  }
+
+  static async loginController(req: Request, res: Response): Promise<Response> {
+    const { email, password } = req.body;
+    if (!email || !password) {
+      throw new Error("Credentials missing");
+    }
+
+    try {
+      const isPasswordValid = await UserService.loginService(email, password);
+      if (!isPasswordValid) {
+        return res.status(401).json({ error: "Invalid credentials" });
+      }
+
+      const user = await UserService.getUserByEmail(email);
+      if (!user) {
+        return res.status(404).json({ error: "User not found" });
+      }
+
+      if (!process.env.JWT_SECRET) {
+        throw new Error("JWT_SECRET not defined");
+      }
+
+      const token = jwt.sign(
+        { id: user.id, email: user.email },
+        process.env.JWT_SECRET,
+        { expiresIn: "1h" }
+      );
+
+      return res.status(200).json({ token });
+    } catch (error) {
+      return res.status(500).json({ error: "Error login" });
     }
   }
 
