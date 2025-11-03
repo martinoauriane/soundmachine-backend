@@ -1,6 +1,5 @@
 // router.ts
 import { Router } from "express";
-import { loginPwd } from "../middlewares/loginPwd";
 import { authenticateMiddleware } from "../middlewares/authenticateJwt";
 import { bodySanitizeMiddleware } from "../middlewares/bodySanitize";
 import { UserController } from "../controllers/userController";
@@ -15,7 +14,6 @@ router.get("/users/all", UserController.getAllController);
 router.put("/user/:id", UserController.updateUser);
 router.delete(
   "/delete/:user_id",
-  loginPwd,
   authenticateMiddleware,
   UserController.deleteUser
 );
@@ -23,14 +21,12 @@ router.delete(
 // TRACKS
 router.get(
   "/:userid/sounds",
-  loginPwd,
   authenticateMiddleware,
   UserController.getUserTracksController
 );
 
 router.put(
   "/add-sound/:userid",
-  loginPwd,
   authenticateMiddleware,
   TrackController.updateTrack
 );
