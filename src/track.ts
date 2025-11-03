@@ -10,8 +10,8 @@ export interface Track {
   filepath: string;
   author: User;
   authorId: number;
-  downloadedByUsers: User[];
-  favoritedByUsers: User[];
+  downloadedByUsers: { id: number; pseudo: string }[];
+  favoritedByUsers: { id: number; pseudo: string }[];
 }
 
 export interface TrackRead {
@@ -21,6 +21,11 @@ export interface TrackRead {
   updated_at?: Date | null;
   duration: number;
   music_genre: string;
-  filepath: string;
   authorId: number;
+}
+
+export interface TrackDelete {
+  id: number;
+  title: string;
+  created_at: Date;
 }

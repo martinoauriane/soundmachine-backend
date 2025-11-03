@@ -3,16 +3,15 @@ import { Router } from "express";
 import { loginPwd } from "../middlewares/loginPwd";
 import { authenticateMiddleware } from "../middlewares/authenticateJwt";
 import { bodySanitizeMiddleware } from "../middlewares/bodySanitize";
-import { login } from "../controllers/authController";
 import { UserController } from "../controllers/userController";
 import { TrackController } from "../controllers/trackController";
 
 const router = Router();
 
 // USER
-router.post("/user/new", UserController.createUser);
-router.get("/users/:id", UserController.getUserById);
-router.get("/users/all", UserController.getAll);
+router.post("/user/new", UserController.createUserController);
+router.get("/users/:id", UserController.getUserByIdController);
+router.get("/users/all", UserController.getAllController);
 router.put("/user/:id", UserController.updateUser);
 router.delete(
   "/delete/:user_id",
@@ -26,7 +25,7 @@ router.get(
   "/:userid/sounds",
   loginPwd,
   authenticateMiddleware,
-  UserController.getUserTracks
+  UserController.getUserTracksController
 );
 
 router.put(
@@ -36,16 +35,10 @@ router.put(
   TrackController.updateTrack
 );
 
-router.post(
-  "/tracks/add",
-  login,
-  authenticateMiddleware,
-  TrackController.addTrack
-);
+router.post("/tracks/add", authenticateMiddleware, TrackController.addTrack);
 
 router.delete(
-  "/tracks/delete/?track=trackid&?user=userid",
-  login,
+  "/tracks/delete/:trackid/:userid",
   authenticateMiddleware,
   bodySanitizeMiddleware,
   TrackController.deleteTrack
@@ -53,7 +46,6 @@ router.delete(
 
 router.get(
   "/browse-by-categories",
-  login,
   authenticateMiddleware,
   TrackController.getAllTracks
 );

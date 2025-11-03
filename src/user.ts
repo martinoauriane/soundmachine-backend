@@ -28,6 +28,7 @@ export interface UserRead {
   firstname: string;
   lastname: string;
   pseudo: string;
+  email: string;
   uploadedTracks: TrackRead[];
   downloadedTracks: TrackRead[];
   favoriteTracks: TrackRead[];
@@ -48,6 +49,7 @@ export interface UserRead {
 export interface UserUpdate {
   firstname: string;
   lastname: string;
+  email: string;
   pseudo: string;
   password: string;
 }

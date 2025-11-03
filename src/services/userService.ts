@@ -1,14 +1,17 @@
 import { PrismaClient, User as PrismaUser } from "@prisma/client";
 import { Track, TrackRead } from "../track";
-import { User, UserUpdate } from "../src/user";
-import { hash_pwd } from "../src/utils/password_hash";
-import { UserCreate, UserRead } from "../src/user";
+import { User, UserUpdate } from "../user";
+import { hash_pwd } from "../utils/password_hash";
+import { UserCreate, UserRead } from "../user";
 
 const prisma = new PrismaClient();
 
 export class UserService {
   // new user
   static async newUser(user: UserCreate): Promise<PrismaUser> {
+    if (!user.password) {
+      throw new Error("please enter a password");
+    }
     const hashedPassword = await hash_pwd(user.password);
     try {
       const newUser: PrismaUser = await prisma.user.create({
@@ -37,6 +40,7 @@ export class UserService {
           firstname: true,
           lastname: true,
           pseudo: true,
+          email: true,
           uploadedTracks: true,
           downloadedTracks: true,
           favoriteTracks: true,
@@ -80,7 +84,6 @@ export class UserService {
         updated_at: track.updated_at,
         duration: track.duration,
         music_genre: track.music_genre,
-        filepath: track.filepath,
         authorId: track.authorId,
       }));
 
@@ -103,6 +106,7 @@ export class UserService {
           firstname: user.firstname,
           lastname: user.lastname,
           pseudo: user.pseudo,
+          email: user.email,
           password: await hash_pwd(user.password),
         },
         select: {

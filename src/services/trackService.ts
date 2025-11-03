@@ -1,19 +1,27 @@
 import { PrismaClient } from "@prisma/client";
-import { Track } from "../track";
+import { Track, TrackRead, TrackDelete } from "../track";
 
 const prisma = new PrismaClient();
 
-// methods in TrackService
 export class TrackService {
   // update a track
   static async updateTrack(
     track_id: number,
     track_title: string
-  ): Promise<Track> {
+  ): Promise<TrackRead> {
     try {
-      const updatedTrack: Track = await prisma.tracks.update({
+      const updatedTrack: TrackRead = await prisma.track.update({
         where: { id: track_id },
         data: { title: track_title },
+        select: {
+          id: true,
+          title: true,
+          created_at: true,
+          updated_at: true,
+          duration: true,
+          music_genre: true,
+          authorId: true,
+        },
       });
       return updatedTrack;
     } catch (error) {
@@ -28,10 +36,15 @@ export class TrackService {
   }
 
   // delete user
-  static async deleteTrack(trackId: number): Promise<Track> {
+  static async deleteTrack(trackId: number): Promise<TrackDelete> {
     try {
-      const deletedTrack: Track = await prisma.track.delete({
+      const deletedTrack: TrackDelete = await prisma.track.delete({
         where: { id: trackId },
+        select: {
+          id: true,
+          title: true,
+          created_at: true,
+        },
       });
       return deletedTrack;
     } catch (error) {
