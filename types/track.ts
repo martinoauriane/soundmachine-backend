@@ -1,3 +1,4 @@
+// trackType.ts
 import { User } from "./user";
 
 export interface Track {

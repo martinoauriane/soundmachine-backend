@@ -1,11 +1,36 @@
+// trackService.ts
 import { PrismaClient } from "@prisma/client";
-import { Track, TrackRead, TrackDelete } from "../track";
+import { Track, TrackRead, TrackDelete } from "../../types/track";
 
 const prisma = new PrismaClient();
 
 export class TrackService {
-  // update a track
-  static async updateTrack(
+  // create track
+  static async createTrackService(
+    title: string,
+    filepath: string,
+    author: number,
+    music_genre: string,
+    duration: number
+  ) {
+    try {
+      const createdTrack: TrackRead = await prisma.track.create({
+        data: {
+          title: title,
+          filepath: filepath,
+          authorId: author,
+          music_genre: music_genre,
+          duration: duration,
+        },
+      });
+      return createdTrack;
+    } catch (error) {
+      console.error("Error while attempting to update track", error);
+    }
+  }
+
+  // update track in db
+  static async updateTrackService(
     track_id: number,
     track_title: string
   ): Promise<TrackRead> {
@@ -30,13 +55,13 @@ export class TrackService {
     }
   }
   // retrieve all tracks
-  static async getAllTracks() {
+  static async getAllTracksService() {
     const tracks = await prisma.track.findMany();
     return tracks;
   }
 
-  // delete user
-  static async deleteTrack(trackId: number): Promise<TrackDelete> {
+  // delete track
+  static async deleteTrackService(trackId: number): Promise<TrackDelete> {
     try {
       const deletedTrack: TrackDelete = await prisma.track.delete({
         where: { id: trackId },

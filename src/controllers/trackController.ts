@@ -1,33 +1,54 @@
+// trackController.ts
+
 import { Request, Response } from "express";
 import { TrackService } from "../services/trackService";
+import { Track, TrackRead, TrackDelete } from "../../types/track";
 
 export class TrackController {
   // get all tracks
-  static async getAllTracks(req: Request, res: Response) {
+  static async getAllTracks(req: Request, res: Response): Promise<Response> {
     try {
-      const results = await TrackService.getAllTracks();
-      res.status(200).json(results);
+      const results = await TrackService.getAllTracksService();
+      return res.status(200).json(results);
     } catch (error) {
-      res.status(500).json({ error: "Error fetching tracks in database" });
+      return res
+        .status(500)
+        .json({ error: "Error fetching tracks in database" });
     }
   }
 
   // add a track
-  static async addTrack(req: Request, res: Response) {}
+  static async addTrack(req: Request, res: Response): Promise<Response> {
+    const { title, filepath, author, music_genre, duration } = req.body;
+    if (!title || !filepath || !author || !music_genre || !duration) {
+      return res.status(400).json({ error: "Missing required fields" });
+    }
+    try {
+      const newTrack = await TrackService.createTrackService(
+        title,
+        filepath,
+        author,
+        music_genre,
+        duration
+      );
+      return res.status(200).json(newTrack);
+    } catch (error) {
+      return res.status(500).json({ error: "Error creating track" });
+    }
+  }
 
-  // update track
-  static async updateTrack(req: Request, res: Response) {
+  // update track by id
+  static async updateTrackController(req: Request, res: Response) {
     const trackId = parseInt(req.params.id);
-    const tracktitle = req.body.trackname; // Assuming the new name is sent in the request body
-    const { user_id } = req.body;
+    const { tracktitle } = req.body;
     if (!trackId) {
       console.error("Error getting track id");
     }
-    if (!user_id) {
-      console.error("Error getting track id");
-    }
     try {
-      const updatedTrack = TrackService.updateTrack(trackId, tracktitle);
+      const updatedTrack = await TrackService.updateTrackService(
+        trackId,
+        tracktitle
+      );
       res.status(200).json(updatedTrack);
     } catch (error) {
       res.status(500).json({ error: "Error updating track" });
@@ -35,13 +56,20 @@ export class TrackController {
   }
 
   // delete track by id
-  static async deleteTrack(req: Request, res: Response) {
-    const { trackid, userid } = req.params;
+  static async deleteTrackController(
+    req: Request,
+    res: Response
+  ): Promise<Response> {
+    const { trackid } = req.params;
     try {
-      const deletedTrack = TrackService.deleteTrack(Number(trackid));
-      res.status(200).json(deletedTrack);
+      const deletedTrack = await TrackService.deleteTrackService(
+        Number(trackid)
+      );
+      return res.status(200).json(deletedTrack);
     } catch (error) {
-      res.status(500).json({ error: "Error deleting tracks in database" });
+      return res
+        .status(500)
+        .json({ error: "Error deleting tracks in database" });
     }
   }
 }
