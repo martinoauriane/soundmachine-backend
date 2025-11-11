@@ -15,6 +15,7 @@ export function authenticateMiddleware(
   const authHeader = req.headers.authorization;
   const token = authHeader?.split(" ")[1];
 
+  console.log("user token", token);
   if (!token) return res.status(401).json({ message: "Unauthorized" });
 
   if (!process.env.JWT_SECRET) {

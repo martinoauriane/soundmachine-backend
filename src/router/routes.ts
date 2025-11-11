@@ -29,10 +29,11 @@ router.delete(
 
 // USER TRACKS
 router.post(
-  "user/:id/tracks/add",
+  "/user/:id/tracks/add",
   authenticateMiddleware,
   TrackController.addTrack
 );
+
 router.get(
   "/user/:id/tracks",
   authenticateMiddleware,

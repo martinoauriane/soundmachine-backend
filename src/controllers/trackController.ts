@@ -19,6 +19,7 @@ export class TrackController {
 
   // add a track
   static async addTrack(req: Request, res: Response): Promise<Response> {
+    console.log("-------------------------------INSIDE TRACK CONTROLLER");
     const { title, filepath, author, music_genre, duration } = req.body;
     if (!title || !filepath || !author || !music_genre || !duration) {
       return res.status(400).json({ error: "Missing required fields" });
