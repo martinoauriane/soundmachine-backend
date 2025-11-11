@@ -1,6 +1,6 @@
 import { PrismaClient, User as PrismaUser } from "@prisma/client";
 import { Track, TrackRead } from "../../types/track";
-import { User, UserUpdate } from "../../types/user";
+import { User, UserShortRead, UserUpdate } from "../../types/user";
 import { hash_pwd, verifyPassword } from "../utils/password_hash";
 import { UserCreate, UserRead } from "../../types/user";
 
@@ -8,10 +8,7 @@ const prisma = new PrismaClient();
 
 export class UserService {
   // new user
-  static async newUser(user: UserCreate): Promise<PrismaUser> {
-    if (!user.password) {
-      throw new Error("please enter a password");
-    }
+  static async newUser(user: UserCreate): Promise<UserShortRead> {
     const hashedPassword = await hash_pwd(user.password);
     try {
       const newUser: PrismaUser = await prisma.user.create({
@@ -23,14 +20,23 @@ export class UserService {
           password: hashedPassword,
         },
       });
-      return newUser;
+      return {
+        id: newUser.id,
+        firstname: newUser.firstname,
+        lastname: newUser.lastname,
+        pseudo: newUser.pseudo,
+        email: newUser.email,
+      };
     } catch (error) {
       console.error("Failed to create user", error);
       throw error;
     }
   }
 
-  static async loginService(email: string, password: string): Promise<boolean> {
+  static async checkPassword(
+    email: string,
+    password: string
+  ): Promise<boolean> {
     try {
       const user = await prisma.user.findUnique({
         where: { email: email },

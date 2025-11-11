@@ -7,6 +7,14 @@ import { TrackController } from "../controllers/trackController";
 
 const router = Router();
 
+//welcome
+router.get("/", (req, res) => {
+  res.status(200).send({
+    success: "true",
+    message: "welcome",
+  });
+});
+
 // USER
 router.post("/user/new", UserController.createUserController);
 router.post("/user/login", UserController.loginController);

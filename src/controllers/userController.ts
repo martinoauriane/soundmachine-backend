@@ -1,6 +1,6 @@
 import { Request, Response } from "express";
 import { UserService } from "../services/userService";
-import { UserRead } from "../../types/user";
+import { UserRead, UserShortRead } from "../../types/user";
 import { User as PrismaUser } from "@prisma/client";
 import jwt from "jsonwebtoken";
 
@@ -15,7 +15,7 @@ export class UserController {
       return res.status(400).json({ error: "Missing required fields" });
     }
     try {
-      const newUser: PrismaUser = await UserService.newUser({
+      const newUser: UserShortRead = await UserService.newUser({
         firstname,
         lastname,
         pseudo,
@@ -29,13 +29,14 @@ export class UserController {
   }
 
   static async loginController(req: Request, res: Response): Promise<Response> {
+    console.log("Login route hit", req.body);
     const { email, password } = req.body;
     if (!email || !password) {
       throw new Error("Credentials missing");
     }
 
     try {
-      const isPasswordValid = await UserService.loginService(email, password);
+      const isPasswordValid = await UserService.checkPassword(email, password);
       if (!isPasswordValid) {
         return res.status(401).json({ error: "Invalid credentials" });
       }

@@ -23,6 +23,14 @@ export interface UserCreate {
   password: string;
 }
 
+export interface UserShortRead {
+  id: number;
+  firstname: string;
+  lastname: string;
+  pseudo: string;
+  email: string;
+}
+
 export interface UserRead {
   id: number;
   firstname: string;

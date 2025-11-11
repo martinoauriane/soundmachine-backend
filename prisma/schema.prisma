@@ -9,7 +9,7 @@ datasource db {
 }
 
 
-model User {
+model user {
   id      Int      @id @default(autoincrement())
   firstname String
   lastname String 
@@ -17,16 +17,16 @@ model User {
   email   String   @unique
   password String
 
-  // Relations avec Track
-  uploadedTracks   Track[] @relation("TrackAuthor")
-  downloadedTracks Track[] @relation("UserDownloadedTracks")
-  favoriteTracks Track[] @relation("UserFavoriteTracks")
+  // Relations avec track
+  uploadedTracks   track[] @relation("TrackAuthor")
+  downloadedTracks track[] @relation("UserDownloadedTracks")
+  favoriteTracks track[] @relation("UserFavoriteTracks")
   // Self-relation followers/following
-  followers  User[] @relation("UserFollows")
-  following  User[] @relation("UserFollows")
+  followers  user[] @relation("UserFollows")
+  following  user[] @relation("UserFollows")
 }
 
-model Track {
+model track {
   id          Int      @id @default(autoincrement())
   title       String   @db.VarChar(255)
   created_at  DateTime @default(now())
@@ -35,10 +35,10 @@ model Track {
   music_genre String
   filepath    String
 
-  author    User       @relation("TrackAuthor", fields: [authorId], references: [id])
+  author    user       @relation("TrackAuthor", fields: [authorId], references: [id])
   authorId  Int        
 
-  downloadedByUsers User[] @relation("UserDownloadedTracks")
-  favoritedByUsers  User[] @relation("UserFavoriteTracks")
+  downloadedByUsers user[] @relation("UserDownloadedTracks")
+  favoritedByUsers  user[] @relation("UserFavoriteTracks")
 }
 

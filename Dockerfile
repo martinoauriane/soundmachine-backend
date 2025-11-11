@@ -1,19 +1,13 @@
 FROM node:20
 
 WORKDIR /app
-
 COPY package*.json yarn.lock ./
-
-RUN yarn install --production=false
-
+RUN yarn install
 COPY . .
 
 RUN npx prisma generate
 
-RUN yarn build || true 
-
 EXPOSE 5000
 
-CMD ["yarn", "dev"]
-
-
+# Démarre ton code TypeScript directement
+CMD ["npx", "tsx", "index.ts"]
