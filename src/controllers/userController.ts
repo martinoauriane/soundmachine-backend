@@ -104,15 +104,17 @@ export class UserController {
     res: Response
   ): Promise<Response> {
     const userId = Number(req.params.id);
-    //todo: add token authentication
+
     if (!userId) {
-      console.error("User not found in database");
+      console.error("User ID error. User does not exist");
     }
     try {
       const tracks = await UserService.getUserTracks(userId);
       return res.status(200).json(tracks);
     } catch (error) {
-      return res.status(500).json({ error: "Failed retrieving tracks in db" });
+      return res
+        .status(500)
+        .json({ error: `Failed to retrieve user ${userId} tracks in db` });
     }
   }
 

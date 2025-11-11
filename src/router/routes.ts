@@ -22,26 +22,25 @@ router.get("/user/:id", UserController.getUserByIdController); // get user by id
 router.get("/users", UserController.getAllController);
 router.put("/user/:id", UserController.updateUser);
 router.delete(
-  "/user/delete/:user_id",
+  "/user/delete/:id",
   authenticateMiddleware,
   UserController.deleteUser
 );
 
-// TRACKS
+// USER TRACKS
+router.post(
+  "user/:id/tracks/add",
+  authenticateMiddleware,
+  TrackController.addTrack
+);
 router.get(
-  "/:userid/sounds",
+  "/user/:id/tracks",
   authenticateMiddleware,
   UserController.getUserTracksController
 );
 
-router.put(
-  "/add-sound/:userid",
-  authenticateMiddleware,
-  TrackController.updateTrackController
-);
-
-router.post("/tracks/add", authenticateMiddleware, TrackController.addTrack);
-
+// TRACKS
+router.get("/tracks", authenticateMiddleware, TrackController.getAllTracks); // get all tracks
 router.delete(
   "/tracks/delete/:trackid/:userid",
   authenticateMiddleware,
@@ -49,10 +48,10 @@ router.delete(
   TrackController.deleteTrackController
 );
 
-router.get(
-  "/browse-by-categories",
+router.put(
+  "/add-sound/:userid",
   authenticateMiddleware,
-  TrackController.getAllTracks
+  TrackController.updateTrackController
 );
 
 export default router;

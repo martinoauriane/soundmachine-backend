@@ -193,6 +193,7 @@ export class UserService {
       const deletedUser: User = await prisma.user.delete({
         where: { id: userId },
       });
+      console.log("-----------------DELETE", deletedUser);
       return deletedUser;
     } catch (error) {
       console.error("Failed to delete user:", error);
