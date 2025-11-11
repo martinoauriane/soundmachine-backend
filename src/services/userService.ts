@@ -107,9 +107,17 @@ export class UserService {
   }
 
   // get all users
-  static async getAll(): Promise<User[] | undefined> {
+  static async getAll(): Promise<UserShortRead[]> {
     try {
-      const users: User[] = await prisma.user.findMany();
+      const users: UserShortRead[] = await prisma.user.findMany({
+        select: {
+          id: true,
+          firstname: true,
+          lastname: true,
+          pseudo: true,
+          email: true,
+        },
+      });
       return users;
     } catch (error) {
       console.error("Failed to retrieve all users from db", error);

@@ -56,7 +56,7 @@ export class UserController {
         { expiresIn: "1h" }
       );
 
-      return res.status(200).json({ token });
+      return res.status(200).json({ token: token, id: user.id });
     } catch (error) {
       return res.status(500).json({ error: "Error login" });
     }
@@ -68,8 +68,9 @@ export class UserController {
     res: Response
   ): Promise<Response> {
     try {
-      const result = await UserService.getAll();
-      return res.status(200).json(result);
+      const users: UserShortRead[] = await UserService.getAll();
+      console.log("result ----------------------------", users);
+      return res.status(200).json({ users });
     } catch (error) {
       return res
         .status(500)

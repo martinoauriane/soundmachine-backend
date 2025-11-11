@@ -11,12 +11,12 @@ const app = express();
 app.use(cors());
 app.use(express.json()); // Parse JSON body
 app.use(express.urlencoded({ extended: true }));
-app.use(bodySanitizeMiddleware);
-
+/* app.use(bodySanitizeMiddleware);
+ */
 app.use(router);
 
-app.use(pageNotFound);
-
+/* app.use(pageNotFound);
+ */
 const backendport = process.env.API_PORT || 5000;
 const host = process.env.HOST || "localhost";
 

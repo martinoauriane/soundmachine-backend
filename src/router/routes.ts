@@ -18,11 +18,11 @@ router.get("/", (req, res) => {
 // USER
 router.post("/user/new", UserController.createUserController);
 router.post("/user/login", UserController.loginController);
-router.get("/users/:id", UserController.getUserByIdController);
-router.get("/users/all", UserController.getAllController);
+router.get("/user/:id", UserController.getUserByIdController); // get user by id
+router.get("/users", UserController.getAllController);
 router.put("/user/:id", UserController.updateUser);
 router.delete(
-  "/delete/:user_id",
+  "/user/delete/:user_id",
   authenticateMiddleware,
   UserController.deleteUser
 );
