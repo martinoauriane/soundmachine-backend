@@ -15,14 +15,6 @@ export interface User {
   following?: User[];
 }
 
-export interface UserCreate {
-  firstname: string;
-  lastname: string;
-  pseudo: string;
-  email: string;
-  password: string;
-}
-
 export interface UserShortRead {
   id: number;
   firstname: string;
@@ -52,6 +44,14 @@ export interface UserRead {
     lastname: string;
     pseudo: string;
   }[];
+}
+
+export interface UserCreate {
+  firstname: string;
+  lastname: string;
+  pseudo: string;
+  email: string;
+  password: string;
 }
 
 export interface UserUpdate {

@@ -2,14 +2,40 @@
 
 import { Request, Response } from "express";
 import { TrackService } from "../services/trackService";
-import { Track, TrackRead, TrackDelete } from "../../types/track";
+import { TrackShortRead, TrackRead, TrackDelete } from "../../types/track";
 
 export class TrackController {
-  // get all tracks
-  static async getAllTracks(req: Request, res: Response): Promise<Response> {
+  // add a track
+  static async addTrack(req: Request, res: Response): Promise<Response> {
+    const { title, filepath, author, music_genre, duration } = req.body;
+    if (!title || !filepath || !author || !music_genre || !duration) {
+      return res.status(400).json({ error: "Missing required fields" });
+    }
+    const durationLength = Number(duration);
+    const authorID = Number(author);
     try {
-      const results = await TrackService.getAllTracksService();
-      return res.status(200).json(results);
+      const newTrack: TrackShortRead | undefined =
+        await TrackService.createTrackService(
+          title,
+          filepath,
+          authorID,
+          music_genre,
+          durationLength
+        );
+      return res.status(201).json(newTrack);
+    } catch (error) {
+      return res.status(500).json({ error: "Error creating track" });
+    }
+  }
+
+  // get all tracks
+  static async getAllTracksController(
+    req: Request,
+    res: Response
+  ): Promise<Response> {
+    try {
+      const tracks: TrackRead[] = await TrackService.getAllTracksService();
+      return res.status(200).json(tracks);
     } catch (error) {
       return res
         .status(500)
@@ -17,42 +43,23 @@ export class TrackController {
     }
   }
 
-  // add a track
-  static async addTrack(req: Request, res: Response): Promise<Response> {
-    console.log("-------------------------------INSIDE TRACK CONTROLLER");
-    const { title, filepath, author, music_genre, duration } = req.body;
-    if (!title || !filepath || !author || !music_genre || !duration) {
-      return res.status(400).json({ error: "Missing required fields" });
-    }
-    try {
-      const newTrack = await TrackService.createTrackService(
-        title,
-        filepath,
-        author,
-        music_genre,
-        duration
-      );
-      return res.status(200).json(newTrack);
-    } catch (error) {
-      return res.status(500).json({ error: "Error creating track" });
-    }
-  }
-
   // update track by id
-  static async updateTrackController(req: Request, res: Response) {
-    const trackId = parseInt(req.params.id);
-    const { tracktitle } = req.body;
-    if (!trackId) {
-      console.error("Error getting track id");
-    }
+  static async updateTrackController(
+    req: Request,
+    res: Response
+  ): Promise<Response> {
+    const { trackTitle } = req.body;
+    const trackID = Number(req.params.id);
+    if (!trackID || Number.isNaN(trackID))
+      return res.status(400).json("Track ID error");
     try {
-      const updatedTrack = await TrackService.updateTrackService(
-        trackId,
-        tracktitle
+      const updatedTrack: TrackRead = await TrackService.updateTrackService(
+        trackID,
+        trackTitle
       );
-      res.status(200).json(updatedTrack);
+      return res.status(200).json(updatedTrack);
     } catch (error) {
-      res.status(500).json({ error: "Error updating track" });
+      return res.status(500).json({ error: "Error updating track" });
     }
   }
 
@@ -61,10 +68,12 @@ export class TrackController {
     req: Request,
     res: Response
   ): Promise<Response> {
-    const { trackid } = req.params;
+    const { trackID } = req.params;
+    if (!trackID || Number.isNaN(Number(trackID)))
+      return res.status(400).json("Track ID error");
     try {
-      const deletedTrack = await TrackService.deleteTrackService(
-        Number(trackid)
+      const deletedTrack: TrackDelete = await TrackService.deleteTrackService(
+        Number(trackID)
       );
       return res.status(200).json(deletedTrack);
     } catch (error) {

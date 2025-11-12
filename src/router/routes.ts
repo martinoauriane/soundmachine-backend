@@ -7,52 +7,57 @@ import { TrackController } from "../controllers/trackController";
 
 const router = Router();
 
-//welcome
-router.get("/", (req, res) => {
-  res.status(200).send({
-    success: "true",
-    message: "welcome",
-  });
+//welcome test route
+router.get("/api", (req, res) => {
+  res.status(200).send({ success: "true", message: "welcome" });
 });
 
 // USER
-router.post("/user/new", UserController.createUserController);
-router.post("/user/login", UserController.loginController);
-router.get("/user/:id", UserController.getUserByIdController); // get user by id
-router.get("/users", UserController.getAllController);
-router.put("/user/:id", UserController.updateUser);
+router.post("/api/user/new", UserController.createUserController);
+router.post("/api/user/login", UserController.loginController);
+router.get("/api/user/:id", UserController.getUserByIdController); // get user by id
+router.get("/api/users", UserController.getAllUsersController);
+router.put("/api/user/:id", UserController.updateUserController);
 router.delete(
-  "/user/delete/:id",
+  "/api/user/delete/:id",
   authenticateMiddleware,
-  UserController.deleteUser
+  UserController.deleteUserController
 );
 
 // USER TRACKS
 router.post(
-  "/user/:id/tracks/add",
+  "/api/user/:id/tracks/add",
   authenticateMiddleware,
   TrackController.addTrack
 );
 
 router.get(
-  "/user/:id/tracks",
+  "/api/user/:id/tracks",
   authenticateMiddleware,
   UserController.getUserTracksController
 );
 
 // TRACKS
-router.get("/tracks", authenticateMiddleware, TrackController.getAllTracks); // get all tracks
-router.delete(
-  "/tracks/delete/:trackid/:userid",
+
+// get all tracks
+router.get(
+  "/api/tracks",
   authenticateMiddleware,
-  bodySanitizeMiddleware,
-  TrackController.deleteTrackController
+  TrackController.getAllTracksController
 );
 
+// update a track
 router.put(
-  "/add-sound/:userid",
+  "/api/tracks/update/:trackid",
   authenticateMiddleware,
   TrackController.updateTrackController
 );
 
+// delete a track
+router.delete(
+  "/api/tracks/delete/:trackid/:userid",
+  authenticateMiddleware,
+  bodySanitizeMiddleware,
+  TrackController.deleteTrackController
+);
 export default router;

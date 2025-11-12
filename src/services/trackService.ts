@@ -1,8 +1,9 @@
 // trackService.ts
 import { PrismaClient } from "@prisma/client";
-import { Track, TrackRead, TrackDelete } from "../../types/track";
+import { TrackShortRead, TrackRead, TrackDelete } from "../../types/track";
 
 const prisma = new PrismaClient();
+// query builder ORM (Object Relationnal Mapping) based on the models and attributes of the Prisma schema.
 
 export class TrackService {
   // create track
@@ -12,15 +13,24 @@ export class TrackService {
     author: number,
     music_genre: string,
     duration: number
-  ) {
+  ): Promise<TrackShortRead | undefined> {
+    // if prisma.track.create fails, the error will be logged in the catch(error)
     try {
-      const createdTrack: TrackRead = await prisma.track.create({
+      const createdTrack: TrackShortRead = await prisma.track.create({
         data: {
           title: title,
           filepath: filepath,
           authorId: author,
           music_genre: music_genre,
           duration: duration,
+        },
+        select: {
+          id: true,
+          title: true,
+          created_at: true,
+          duration: true,
+          music_genre: true,
+          authorId: true,
         },
       });
       return createdTrack;
@@ -35,6 +45,7 @@ export class TrackService {
     track_title: string
   ): Promise<TrackRead> {
     try {
+      // prisma.update returns null if no track was found
       const updatedTrack: TrackRead = await prisma.track.update({
         where: { id: track_id },
         data: { title: track_title },
@@ -48,20 +59,39 @@ export class TrackService {
           authorId: true,
         },
       });
+      if (updatedTrack == null)
+        throw new Error(`Failed to update track ${track_title}`);
       return updatedTrack;
     } catch (error) {
-      console.error("Error while attempting to update track", error);
-      throw new Error("Impossible to upload track");
+      throw new Error(`Error while uploading track ${track_title}`);
     }
   }
+
   // retrieve all tracks
-  static async getAllTracksService() {
-    const tracks = await prisma.track.findMany();
-    return tracks;
+  static async getAllTracksService(): Promise<TrackRead[]> {
+    // findMany returns an empty [] is no tracks are found
+    try {
+      const tracks: TrackRead[] = await prisma.track.findMany({
+        select: {
+          id: true,
+          title: true,
+          created_at: true,
+          updated_at: true,
+          duration: true,
+          music_genre: true,
+          authorId: true,
+        },
+      });
+      return tracks;
+    } catch (error) {
+      console.error("Failed to retrieve all tracks from db", error);
+      throw error;
+    }
   }
 
   // delete track
   static async deleteTrackService(trackId: number): Promise<TrackDelete> {
+    // if no track is found Prisma sends a P2025 ("Record to delete does not exist.") error.
     try {
       const deletedTrack: TrackDelete = await prisma.track.delete({
         where: { id: trackId },

@@ -25,6 +25,15 @@ export interface TrackRead {
   authorId: number;
 }
 
+export interface TrackShortRead {
+  id: number;
+  title: string;
+  created_at: Date;
+  duration: number;
+  music_genre: string;
+  authorId: number;
+}
+
 export interface TrackDelete {
   id: number;
   title: string;

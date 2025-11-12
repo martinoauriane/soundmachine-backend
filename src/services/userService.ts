@@ -1,6 +1,6 @@
-import { PrismaClient, User as PrismaUser } from "@prisma/client";
-import { Track, TrackRead } from "../../types/track";
-import { User, UserShortRead, UserUpdate } from "../../types/user";
+import { PrismaClient } from "@prisma/client";
+import { TrackRead } from "../../types/track";
+import { UserShortRead, UserUpdate } from "../../types/user";
 import { hash_pwd, verifyPassword } from "../utils/password_hash";
 import { UserCreate, UserRead } from "../../types/user";
 
@@ -9,9 +9,10 @@ const prisma = new PrismaClient();
 export class UserService {
   // new user
   static async newUser(user: UserCreate): Promise<UserShortRead> {
+    // if prisma.user.create fails, the error will be logged in the catch(error)
     const hashedPassword = await hash_pwd(user.password);
     try {
-      const newUser: PrismaUser = await prisma.user.create({
+      const newUser: UserShortRead = await prisma.user.create({
         data: {
           firstname: user.firstname,
           lastname: user.lastname,
@@ -19,14 +20,15 @@ export class UserService {
           email: user.email,
           password: hashedPassword,
         },
+        select: {
+          id: true,
+          firstname: true,
+          lastname: true,
+          pseudo: true,
+          email: true,
+        },
       });
-      return {
-        id: newUser.id,
-        firstname: newUser.firstname,
-        lastname: newUser.lastname,
-        pseudo: newUser.pseudo,
-        email: newUser.email,
-      };
+      return newUser;
     } catch (error) {
       console.error("Failed to create user", error);
       throw error;
@@ -46,20 +48,21 @@ export class UserService {
           id: true,
         },
       });
-      if (!user) throw new Error(`User with email ${email} not found`);
+      if (user == null) throw new Error(`User with email ${email} not found`);
       const check = await verifyPassword(password, user.password);
       if (!check) throw new Error("Invalid password");
       return true;
     } catch (error) {
+      console.error("Failed to login in:", error);
       return false;
     }
   }
 
   // get user by Id
-  static async getUserById(userId: number): Promise<UserRead | null> {
+  static async getUserById(userId: number): Promise<UserRead> {
     try {
       const user: UserRead | null = await prisma.user.findUnique({
-        where: { id: userId }, // by default Prisma gets all user columns
+        where: { id: userId },
         select: {
           id: true,
           firstname: true,
@@ -73,7 +76,7 @@ export class UserService {
           following: true,
         },
       });
-      if (!user) throw new Error(`User with ID ${userId} not found`);
+      if (user == null) throw new Error(`User with ID ${userId} not found`);
       return user;
     } catch (error) {
       console.error("Failed to retrieve user:", error);
@@ -81,8 +84,9 @@ export class UserService {
     }
   }
 
-  static async getUserByEmail(email: string): Promise<UserRead | null> {
+  static async getUserByEmail(email: string): Promise<UserRead> {
     try {
+      // prisma.user.findUnique will return null if no user is found
       const user: UserRead | null = await prisma.user.findUnique({
         where: { email: email },
         select: {
@@ -98,17 +102,17 @@ export class UserService {
           following: true,
         },
       });
-      if (!user) throw new Error(`User with email ${email} not found`);
+      if (user == null) throw new Error(`User with email ${email} not found`);
       return user;
     } catch (error) {
-      console.error("Failed to retrieve user:", error);
-      throw error;
+      throw new Error("Failed to retrieve user:");
     }
   }
 
   // get all users
   static async getAll(): Promise<UserShortRead[]> {
     try {
+      // findMany returns an empty [] is no users are found
       const users: UserShortRead[] = await prisma.user.findMany({
         select: {
           id: true,
@@ -120,44 +124,40 @@ export class UserService {
       });
       return users;
     } catch (error) {
-      console.error("Failed to retrieve all users from db", error);
-      throw error;
+      throw new Error("Failed to retrieve all users from db");
     }
   }
 
   // retrieve user tracks
-  static async getUserTracks(userId: number): Promise<TrackRead[] | null> {
+  static async getUserTracks(userId: number): Promise<TrackRead[]> {
     try {
       const user = await prisma.user.findUnique({
         where: { id: userId },
-        select: { uploadedTracks: true },
+        select: {
+          uploadedTracks: {
+            select: {
+              id: true,
+              title: true,
+              created_at: true,
+              updated_at: true,
+              duration: true,
+              music_genre: true,
+              authorId: true,
+            },
+          },
+        },
       });
-
-      if (!user) return null;
-
-      const tracks: TrackRead[] = user.uploadedTracks.map((track) => ({
-        id: track.id,
-        title: track.title,
-        created_at: track.created_at,
-        updated_at: track.updated_at,
-        duration: track.duration,
-        music_genre: track.music_genre,
-        authorId: track.authorId,
-      }));
-
-      return tracks;
+      if (user == null) throw new Error(`User with id ${userId} not found`);
+      return user.uploadedTracks; // trackRead[] format
     } catch (error) {
-      console.error("Failed to retrieve user tracks:", error);
-      throw error;
+      throw new Error(`Failed to retrieve user tracks`);
     }
   }
 
   // update user
-  static async updateUser(
-    userId: number,
-    user: UserUpdate
-  ): Promise<UserRead | null> {
+  static async updateUser(userId: number, user: UserUpdate): Promise<UserRead> {
     try {
+      // prisma.update returns null if no user was found
       const updatedUser: UserRead = await prisma.user.update({
         where: { id: userId },
         data: {
@@ -180,24 +180,30 @@ export class UserService {
           following: true,
         },
       });
+      if (updatedUser == null) throw new Error(`Failed to update user`);
       return updatedUser;
     } catch (error) {
-      console.error("Failed to update user:", error);
-      throw error;
+      throw new Error(`Failed to update user`);
     }
   }
 
   // delete user
-  static async deleteUser(userId: number): Promise<User | null> {
+  static async deleteUser(userId: number): Promise<UserShortRead> {
+    // if no user is found Prisma sends a P2025 ("Record to delete does not exist.") error.
     try {
-      const deletedUser: User = await prisma.user.delete({
+      const deletedUser: UserShortRead = await prisma.user.delete({
         where: { id: userId },
+        select: {
+          id: true,
+          firstname: true,
+          lastname: true,
+          pseudo: true,
+          email: true,
+        },
       });
-      console.log("-----------------DELETE", deletedUser);
       return deletedUser;
     } catch (error) {
-      console.error("Failed to delete user:", error);
-      throw error;
+      throw new Error(`Failed to delete user`);
     }
   }
 }

@@ -3,6 +3,7 @@ import { UserService } from "../services/userService";
 import { UserRead, UserShortRead } from "../../types/user";
 import { User as PrismaUser } from "@prisma/client";
 import jwt from "jsonwebtoken";
+import { TrackRead } from "../../types/track";
 
 export class UserController {
   // create user
@@ -22,54 +23,49 @@ export class UserController {
         email,
         password,
       });
-      return res.status(200).json(newUser);
+      return res.status(201).json(newUser);
     } catch (error) {
       return res.status(500).json({ error: "Failed to create new user" });
     }
   }
 
   static async loginController(req: Request, res: Response): Promise<Response> {
-    console.log("Login route hit", req.body);
     const { email, password } = req.body;
-    if (!email || !password) {
-      throw new Error("Credentials missing");
-    }
-
+    if (!email || !password) throw new Error("Credentials missing");
     try {
-      const isPasswordValid = await UserService.checkPassword(email, password);
+      const isPasswordValid: boolean = await UserService.checkPassword(
+        email,
+        password
+      );
       if (!isPasswordValid) {
         return res.status(401).json({ error: "Invalid credentials" });
       }
 
-      const user = await UserService.getUserByEmail(email);
+      const user: UserRead = await UserService.getUserByEmail(email);
       if (!user) {
         return res.status(404).json({ error: "User not found" });
       }
-
       if (!process.env.JWT_SECRET) {
         throw new Error("JWT_SECRET not defined");
       }
-
       const token = jwt.sign(
         { id: user.id, email: user.email },
         process.env.JWT_SECRET,
         { expiresIn: "1h" }
       );
-
-      return res.status(200).json({ token: token, id: user.id });
+      return res.status(200).json({ token: token, user_id: user.id });
     } catch (error) {
       return res.status(500).json({ error: "Error login" });
     }
   }
 
   // retrieve all users
-  static async getAllController(
+  static async getAllUsersController(
     req: Request,
     res: Response
   ): Promise<Response> {
     try {
       const users: UserShortRead[] = await UserService.getAll();
-      console.log("result ----------------------------", users);
       return res.status(200).json({ users });
     } catch (error) {
       return res
@@ -84,12 +80,10 @@ export class UserController {
     res: Response
   ): Promise<Response> {
     const userId = parseInt(req.params.id);
-    //todo: add token authentication
-    if (!userId) {
+    if (!userId || Number.isNaN(userId))
       console.error("User not found in database");
-    }
     try {
-      const user = await UserService.getUserById(userId);
+      const user: UserRead = await UserService.getUserById(userId);
       return res.status(200).json(user);
     } catch (error) {
       return res
@@ -104,12 +98,11 @@ export class UserController {
     res: Response
   ): Promise<Response> {
     const userId = Number(req.params.id);
-
-    if (!userId) {
-      console.error("User ID error. User does not exist");
+    if (!userId || Number.isNaN(userId)) {
+      console.error("User ID error.");
     }
     try {
-      const tracks = await UserService.getUserTracks(userId);
+      const tracks: TrackRead[] = await UserService.getUserTracks(userId);
       return res.status(200).json(tracks);
     } catch (error) {
       return res
@@ -119,21 +112,22 @@ export class UserController {
   }
 
   // update user
-  static async updateUser(req: Request, res: Response): Promise<Response> {
-    const userId = parseInt(req.params.id);
-    if (!userId) return res.status(400).json("error: No user id");
+  static async updateUserController(
+    req: Request,
+    res: Response
+  ): Promise<Response> {
+    const userId = Number(req.params.id);
+    if (!userId || Number.isNaN(userId))
+      return res.status(400).json("User ID error");
     const { firstname, lastname, pseudo, email, password } = req.body;
     try {
-      const updatedUser: UserRead | null = await UserService.updateUser(
-        userId,
-        {
-          firstname,
-          lastname,
-          pseudo,
-          email,
-          password,
-        }
-      );
+      const updatedUser: UserRead = await UserService.updateUser(userId, {
+        firstname,
+        lastname,
+        pseudo,
+        email,
+        password,
+      });
       return res.status(200).json(updatedUser);
     } catch (error) {
       return res
@@ -143,11 +137,16 @@ export class UserController {
   }
 
   // delete user
-  static async deleteUser(req: Request, res: Response): Promise<Response> {
-    const userId = parseInt(req.params.id);
+  static async deleteUserController(
+    req: Request,
+    res: Response
+  ): Promise<Response> {
+    const userId = Number(req.params.id);
+    if (!userId || Number.isNaN(userId))
+      return res.status(400).json("User ID error");
     try {
-      const deletedUser = await UserService.deleteUser(userId);
-      return res.status(200).json(deletedUser);
+      const deletedUser: UserShortRead = await UserService.deleteUser(userId);
+      return res.status(204).json(deletedUser);
     } catch (error) {
       return res.status(500).json({ error: "Failed to delete user" });
     }
