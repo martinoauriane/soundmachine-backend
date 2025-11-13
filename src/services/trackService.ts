@@ -13,7 +13,7 @@ export class TrackService {
     author: number,
     music_genre: string,
     duration: number
-  ): Promise<TrackShortRead | undefined> {
+  ): Promise<TrackShortRead> {
     // if prisma.track.create fails, the error will be logged in the catch(error)
     try {
       const createdTrack: TrackShortRead = await prisma.track.create({
@@ -35,7 +35,7 @@ export class TrackService {
       });
       return createdTrack;
     } catch (error) {
-      console.error("Error while attempting to update track", error);
+      throw new Error(`Error attempting to create track`);
     }
   }
 

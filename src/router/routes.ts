@@ -38,19 +38,16 @@ router.get(
 );
 
 // USERS
-router.get("/api/users", UserController.getSomeUsersController); // /api/users?page=1&items=10 facultative pagination
+// /api/users?page=1&items=10 facultative pagination
+router.get("/api/users", UserController.getSomeUsersController);
 
 // TRACKS
 // get some tracks /api/tracks?page=5&items=20 facultative pagination
-router.get(
-  "/api/tracks",
-  authenticateMiddleware,
-  TrackController.getSomeTracksController
-);
+router.get("/api/tracks", TrackController.getSomeTracksController);
 
 // update a track
 router.put(
-  "/api/tracks/update/:trackid",
+  "/api/tracks/update/:track_id",
   authenticateMiddleware,
   TrackController.updateTrackController
 );

@@ -7,21 +7,23 @@ import { TrackShortRead, TrackRead, TrackDelete } from "../../types/track";
 export class TrackController {
   // add a track
   static async addTrack(req: Request, res: Response): Promise<Response> {
-    const { title, filepath, author, music_genre, duration } = req.body;
-    if (!title || !filepath || !author || !music_genre || !duration) {
+    const { title, filepath, music_genre, duration } = req.body;
+    if (!title || !filepath || !music_genre || !duration) {
       return res.status(400).json({ error: "Missing required fields" });
     }
     const durationLength = Number(duration);
-    const authorID = Number(author);
+    const authorID = Number(req.params.id);
+    if (isNaN(authorID) || isNaN(durationLength)) {
+      console.error("user ID and duration length must be of type number");
+    }
     try {
-      const newTrack: TrackShortRead | undefined =
-        await TrackService.createTrackService(
-          title,
-          filepath,
-          authorID,
-          music_genre,
-          durationLength
-        );
+      const newTrack: TrackShortRead = await TrackService.createTrackService(
+        title,
+        filepath,
+        authorID,
+        music_genre,
+        durationLength
+      );
       return res.status(201).json(newTrack);
     } catch (error) {
       return res.status(500).json({ error: "Error creating track" });
@@ -58,7 +60,7 @@ export class TrackController {
     res: Response
   ): Promise<Response> {
     const { trackTitle } = req.body;
-    const trackID = Number(req.params.id);
+    const trackID = Number(req.params.track_id);
     if (!trackID || Number.isNaN(trackID))
       return res.status(400).json("Track ID error");
     try {

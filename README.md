@@ -1,5 +1,37 @@
 # SoundMachine Backend
 
+## Start the app
+
+```
+docker compose up --build
+```
+
+Create database:
+
+```
+docker exec -it soundmachine-api sh
+```
+
+Then, inside your API container, execute the prisma migration:
+
+Par défaut, Prisma **ne crée pas automatiquement les tables** à l’`up` du conteneur. Docker démarre juste PostgreSQL, mais **les migrations doivent être appliquées séparément** .
+
+```
+npx prisma migrate dev --name init
+```
+
+Connect to db via docker:
+
+```
+docker exec -it soundmachine-db psql -U user -d soundmachine-db
+```
+
+Une fois à l'intérieur, pour afficher les tables, entrer la commande display tables:
+
+```
+\dt
+```
+
 ## Prisma
 
 Prisma is an open-source ORM for Node.js and TypeScript. It is used as an alternative to writing plain SQL. Prisma currently supports PostgreSQL, MySQL, SQL Server, SQLite, MongoDB and CockroachDB.
@@ -28,7 +60,9 @@ This prisma migrate dev command generates SQL files and directly runs them again
 Prisma Client is a type-safe database client that's generated from your Prisma model definition. Because of this approach, Prisma Client can expose CRUD operations that are tailored specifically to your models.
 To install Prisma Client in your project, run the following command in your terminal:
 
+```
 $ npm install @prisma/client
+```
 
 ##### 4. Use Prisma Client in your NestJS services
 
@@ -84,14 +118,7 @@ Include related records
 EXEMPLE:
 The following query returns all ADMIN users and includes each user's posts in the result:
 
-`const users = await prisma.user.findMany({
-  where: {
-    role: 'ADMIN',
-  },
-  include: {
-    posts: true,
-  },
-})`
+`const users = await prisma.user.findMany({   where: {     role: 'ADMIN',   },   include: {     posts: true,   }, })`
 
 ##### UPDATE
 
@@ -118,13 +145,4 @@ EXEMPLE:
 
 The following query uses updateMany() to update all User records that contain prisma.io:
 
-`const updateUsers = await prisma.user.updateMany({
-  where: {
-    email: {
-      contains: 'prisma.io',
-    },
-  },
-  data: {
-    role: 'ADMIN',
-  },
-})`
+`const updateUsers = await prisma.user.updateMany({   where: {     email: {       contains: 'prisma.io',     },   },   data: {     role: 'ADMIN',   }, })`
