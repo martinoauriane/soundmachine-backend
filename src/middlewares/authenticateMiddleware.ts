@@ -24,7 +24,7 @@ export function authenticateMiddleware(
     if (err) {
       return res.status(403).json({ message: "Forbidden" });
     } else {
-      req.body.user = user;
+      req.body.user = user; // adds decoded user infos (id, email) from JWT token to the request body.
     }
     next();
   });

@@ -60,8 +60,4 @@ router.delete(
   TrackController.deleteTrackController
 );
 
-// Not Found route
-router.get("/error", (req, res, next) => {
-  res.status(404).json({ error: "Ressource Not Found" });
-});
 export default router;
