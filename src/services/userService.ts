@@ -110,10 +110,13 @@ export class UserService {
   }
 
   // get all users
-  static async getAll(): Promise<UserShortRead[]> {
+  static async getAll(page: number, items: number) {
     try {
       // findMany returns an empty [] is no users are found
-      const users: UserShortRead[] = await prisma.user.findMany({
+      const paginatedUsers: UserShortRead[] = await prisma.user.findMany({
+        skip: (page - 1) * items, // SQL equivalent = OFFSET
+        take: items, // take indicates the number of elements to get after skip (example: 10)
+        // take SQL equivalent: LIMIT
         select: {
           id: true,
           firstname: true,
@@ -122,7 +125,14 @@ export class UserService {
           email: true,
         },
       });
-      return users;
+
+      const usersCount: number = await prisma.user.count({});
+      const totalPages = Math.ceil(usersCount / items);
+      return {
+        paginatedUsers,
+        currentPage: page,
+        totalPages: totalPages,
+      };
     } catch (error) {
       throw new Error("Failed to retrieve all users from db");
     }
