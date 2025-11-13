@@ -110,13 +110,12 @@ export class UserService {
   }
 
   // get all users
-  static async getAll(page: number, items: number) {
+  static async getSomeUsers(page: number, items: number) {
     try {
       // findMany returns an empty [] is no users are found
       const paginatedUsers: UserShortRead[] = await prisma.user.findMany({
         skip: (page - 1) * items, // SQL equivalent = OFFSET
-        take: items, // take indicates the number of elements to get after skip (example: 10)
-        // take SQL equivalent: LIMIT
+        take: items, // how many users we want ( <=> SQL LIMIT)
         select: {
           id: true,
           firstname: true,
@@ -126,8 +125,8 @@ export class UserService {
         },
       });
 
-      const usersCount: number = await prisma.user.count({});
-      const totalPages = Math.ceil(usersCount / items);
+      const totalUsers: number = await prisma.user.count({});
+      const totalPages: number = Math.ceil(totalUsers / items);
       return {
         paginatedUsers,
         currentPage: page,

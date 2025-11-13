@@ -16,7 +16,7 @@ router.get("/api", (req, res) => {
 router.post("/api/user/new", UserController.createUserController);
 router.post("/api/user/login", UserController.loginController);
 router.get("/api/user/:id", UserController.getUserByIdController); // get user by id
-router.get("/api/users", UserController.getAllUsersController);
+router.get("/api/users", UserController.getSomeUsersController);
 router.put("/api/user/:id", UserController.updateUserController);
 router.delete(
   "/api/user/delete/:id",
@@ -43,7 +43,7 @@ router.get(
 router.get(
   "/api/tracks",
   authenticateMiddleware,
-  TrackController.getAllTracksController
+  TrackController.getSomeTracksController
 );
 
 // update a track

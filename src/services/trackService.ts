@@ -67,11 +67,13 @@ export class TrackService {
     }
   }
 
-  // retrieve all tracks
-  static async getAllTracksService(): Promise<TrackRead[]> {
+  // retrieve tracks
+  static async getSomeTracks(page: number, items: number) {
     // findMany returns an empty [] is no tracks are found
     try {
-      const tracks: TrackRead[] = await prisma.track.findMany({
+      const paginatedTracks: TrackRead[] = await prisma.track.findMany({
+        skip: (page - 1) * items, // SQL OFFSET
+        take: items, // how many tracks we want (<=> SQL LIMIT)
         select: {
           id: true,
           title: true,
@@ -82,7 +84,14 @@ export class TrackService {
           authorId: true,
         },
       });
-      return tracks;
+
+      const totalTracks: number = await prisma.track.count({});
+      const totalPages: number = Math.ceil(totalTracks / items);
+      return {
+        paginatedTracks,
+        currentPage: page,
+        totalPages: totalPages,
+      };
     } catch (error) {
       console.error("Failed to retrieve all tracks from db", error);
       throw error;

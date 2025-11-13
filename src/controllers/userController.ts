@@ -59,10 +59,10 @@ export class UserController {
     }
   }
 
-  // retrieve all users
-  // we're using pagination to limit the delay when charging users (example: 10 000 users in db)
-  // pagination enables you to only get 10, 20, 50 users at time. (lazy loading) Data is charged progressively.
-  static async getAllUsersController(
+  // retrieve users
+  // pagination only gets 10, 20, 50 users at time.
+  // (lazy loading) => data is charged progressively.
+  static async getSomeUsersController(
     req: Request,
     res: Response
   ): Promise<Response> {
@@ -70,7 +70,7 @@ export class UserController {
     const items = Number(req.query.items) || 10;
     try {
       const { paginatedUsers, currentPage, totalPages } =
-        await UserService.getAll(page, items);
+        await UserService.getSomeUsers(page, items);
       return res.status(200).json({
         users: paginatedUsers,
         currentPage: currentPage,

@@ -28,14 +28,23 @@ export class TrackController {
     }
   }
 
-  // get all tracks
-  static async getAllTracksController(
+  // get tracks
+  // pagination only gets 10, 20, 50 tracks at time.
+  // (lazy loading) => data is charged progressively.
+  static async getSomeTracksController(
     req: Request,
     res: Response
   ): Promise<Response> {
     try {
-      const tracks: TrackRead[] = await TrackService.getAllTracksService();
-      return res.status(200).json(tracks);
+      const page = Number(req.query.page) || 1;
+      const items = Number(req.query.items) || 20;
+      const { paginatedTracks, currentPage, totalPages } =
+        await TrackService.getSomeTracks(page, items);
+      return res.status(200).json({
+        tracks: paginatedTracks,
+        currentPage: currentPage,
+        totalPages: totalPages,
+      });
     } catch (error) {
       return res
         .status(500)
