@@ -8,7 +8,7 @@ import { pageNotFound } from "./src/middlewares/notFoundMiddleware";
 const app = express();
 
 // middlewares
-app.use(cors());
+app.use(cors()); // same origin policy, highly securized. Without cors, you can't share authorized ressources with external tiers.
 app.use(express.json()); // Parse JSON body
 app.use(express.urlencoded({ extended: true }));
 app.use(pageNotFound);
