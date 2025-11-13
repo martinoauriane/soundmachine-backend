@@ -8,7 +8,7 @@ import { TrackController } from "../controllers/trackController";
 const router = Router();
 
 //welcome test route
-router.get("/api", (req, res) => {
+router.get("/welcome", (req, res) => {
   res.status(200).send({ success: "true", message: "welcome" });
 });
 
@@ -16,7 +16,6 @@ router.get("/api", (req, res) => {
 router.post("/api/user/new", UserController.createUserController);
 router.post("/api/user/login", UserController.loginController);
 router.get("/api/user/:id", UserController.getUserByIdController); // get user by id
-router.get("/api/users", UserController.getSomeUsersController);
 router.put("/api/user/:id", UserController.updateUserController);
 router.delete(
   "/api/user/delete/:id",
@@ -24,22 +23,25 @@ router.delete(
   UserController.deleteUserController
 );
 
-// USER TRACKS
+// user adds a track
 router.post(
   "/api/user/:id/tracks/add",
   authenticateMiddleware,
   TrackController.addTrack
 );
 
+//get user tracks
 router.get(
   "/api/user/:id/tracks",
   authenticateMiddleware,
   UserController.getUserTracksController
 );
 
-// TRACKS
+// USERS
+router.get("/api/users", UserController.getSomeUsersController); // /api/users?page=1&items=10 facultative pagination
 
-// get all tracks
+// TRACKS
+// get some tracks /api/tracks?page=5&items=20 facultative pagination
 router.get(
   "/api/tracks",
   authenticateMiddleware,
@@ -60,4 +62,9 @@ router.delete(
   bodySanitizeMiddleware,
   TrackController.deleteTrackController
 );
+
+// Not Found route
+router.get("/error", (req, res, next) => {
+  res.status(404).json({ error: "Ressource Not Found" });
+});
 export default router;
